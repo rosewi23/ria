@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Burger Roulette</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #fefefe;
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 20px;
+    }
+    .arrow {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%) rotate(180deg);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid red;
+      z-index: 10;
+    }
+    canvas {
+      width: 90vw;
+      height: 90vw;
+      max-width: 500px;
+      max-height: 500px;
+      border: 2px solid #444;
+      border-radius: 50%;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      max-width: 90%;
+    }
+    #result {
+      margin-top: 15px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      padding: 0 10px;
+    }
+    #popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 2px solid #ccc;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: none;
+      z-index: 999;
+      text-align: center;
+      border-radius: 12px;
+      animation: pop 0.4s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: red;
+      animation: fall 1s ease-out forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="arrow"></div>
+  <canvas id="roulette" width="500" height="500"></canvas>
+  <button onclick="spinRoulette()">Spin the Burger Roulette!</button>
+  <div id="result"></div>
+  <div id="popup"></div>
+
+  <script>
+    const canvas = document.getElementById("roulette");
+    const ctx = canvas.getContext("2d");
+    const resultDiv = document.getElementById("result");
+    const popup = document.getElementById("popup");
+
+    const defaultBurgers = [
+      "불고기버거",
+      "클래식치즈버거",
+      "컵라면",
+      "모짜렐라인더버거",
+      "한우불고기버거",
+      "더블불고기버거",
+      "핫크리스피버거",
+      "새우버거"
+    ];
+
+    const stored = localStorage.getItem("burgerList");
+    const burgers = stored ? JSON.parse(stored) : defaultBurgers;
+
+    if (!stored) {
+      localStorage.setItem("burgerList", JSON.stringify(defaultBurgers));
+    }
+
+    const sliceAngle = (2 * Math.PI) / burgers.length;
+    let angleOffset = 0;
+    let spinning = false;
+    let speed = 0;
+
+    function drawRoulette() {
+      const size = Math.min(canvas.width, canvas.height);
+      ctx.clearRect(0, 0, size, size);
+      const radius = size / 2;
+      burgers.forEach((burger, i) => {
+        const startAngle = i * sliceAngle + angleOffset;
+        const endAngle = startAngle + sliceAngle;
+
+        ctx.beginPath();
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius, startAngle, endAngle);
+        ctx.fillStyle = `hsl(${(i * 360) / burgers.length}, 70%, 60%)`;
+        ctx.fill();
+        ctx.stroke();
+
+        const midAngle = (startAngle + endAngle) / 2;
+        const textX = radius + Math.cos(midAngle) * radius * 0.6;
+        const textY = radius + Math.sin(midAngle) * radius * 0.6;
+        ctx.save();
+        ctx.translate(textX, textY);
+        ctx.fillStyle = "#000";
+        ctx.font = `${Math.max(10, radius * 0.07)}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(burger, 0, 0);
+        ctx.restore();
+      });
+
+      ctx.beginPath();
+      ctx.arc(radius, radius, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = "#000";
+      ctx.fill();
+    }
+
+    function spinRoulette() {
+      if (spinning) return;
+      resultDiv.textContent = "";
+      popup.style.display = "none";
+      speed = Math.random() * 0.3 + 0.25;
+      spinning = true;
+      requestAnimationFrame(animate);
+    }
+
+    function animate() {
+      if (!spinning) return;
+      angleOffset += speed;
+      speed *= 0.98;
+      drawRoulette();
+      if (speed < 0.002) {
+        spinning = false;
+        angleOffset %= 2 * Math.PI;
+        const topCenterAngle = (3 * Math.PI / 2 - angleOffset + 2 * Math.PI) % (2 * Math.PI);
+        const index = Math.floor(topCenterAngle / sliceAngle) % burgers.length;
+
+        resultDiv.textContent = "오늘의 추천 버거는: " + burgers[index];
+        showPopup(burgers[index]);
+        launchConfetti();
+      } else {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    function showPopup(burger) {
+      popup.textContent = `🎉 오늘의 급식은 ${burger}입니다! 🎉`;
+      popup.style.display = "block";
+    }
+
+    function launchConfetti() {
+      for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 1000);
+      }
+    }
+
+    drawRoulette();
+  </script>
+</body>
+</html>
