@@ -5,7 +5,8 @@ self.addEventListener("install", function(e) {
         "/ria/",
         "/ria/index.html",
         "/ria/manifest.json",
-        "/ria/ChatGPT Image 2025년 5월 12일 오후 05_13_23.png"
+        "/ria/icon.png",
+        "/ria/og-image.png"
       ]);
     })
   );
