@@ -1,7 +1,7 @@
 {
   "name": "오늘 급식 추천",
-  "short_name": "급식추천",
-  "start_url": "./index.html",
+  "short_name": "급식 추천",
+  "start_url": "/ria/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
