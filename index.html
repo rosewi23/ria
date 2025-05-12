@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Burger Roulette</title>
+  <meta name="description" content="오늘의 급식 메뉴를 룰렛으로 추천받으세요!" />
+  <meta property="og:title" content="오늘 급식 추천" />
+  <meta property="og:description" content="룰렛을 돌려 오늘의 급식 메뉴를 정해보세요!" />
+  <meta property="og:image" content="ChatGPT Image 2025년 5월 12일 오후 05_20_59.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://rosewi23.github.io/ria/" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="ChatGPT Image 2025년 5월 12일 오후 05_13_23.png" />
+  <title>오늘 급식 추천</title>
   <style>
     html, body {
       margin: 0;
@@ -160,7 +168,6 @@
 
     function spinRoulette() {
       if (spinning) return;
-      resultDiv.textContent = "";
       popup.style.display = "none";
       speed = Math.random() * 0.3 + 0.25;
       spinning = true;
@@ -178,7 +185,7 @@
         const topCenterAngle = (3 * Math.PI / 2 - angleOffset + 2 * Math.PI) % (2 * Math.PI);
         const index = Math.floor(topCenterAngle / sliceAngle) % burgers.length;
 
-        resultDiv.textContent = "오늘의 추천 버거는: " + burgers[index];
+        resultDiv.textContent = "오늘의 추천 급식은: " + burgers[index];
         showPopup(burgers[index]);
         launchConfetti();
       } else {
@@ -203,6 +210,13 @@
     }
 
     drawRoulette();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker registered:', reg))
+        .catch(err => console.error('SW registration failed:', err));
+    }
   </script>
 </body>
 </html>
