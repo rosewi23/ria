@@ -7,9 +7,10 @@
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "ChatGPT Image 2025년 5월 12일 오후 05_13_23.png",
+      "src": "icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
